@@ -384,5 +384,6 @@ def too_large(e): return jsonify({"error":f"File too large. Max {MAX_UPLOAD_MB}M
 if __name__ == "__main__":
     print(f"\n Plant Disease Detection — AI Tool")
     print(f"   Models loaded : {predictor.get_available_models() if predictor else 'None'}")
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+    print(f"   Main app      : http://localhost:{FLASK_PORT}")
+    print(f"   AI Tool       : http://localhost:{FLASK_PORT}/ai-tool\n")
+    app.run(host=FLASK_HOST, port=FLASK_PORT, debug=FLASK_DEBUG)
