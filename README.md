@@ -1,11 +1,11 @@
-# 🌿 Plant Disease Detection AI
+# Plant Disease Detection AI
 
 **CMP511 - Machine Learning and Artificial Intelligence**  
 Student: Bhagyashree Konde | Student ID: 2505115
 
 ---
 
-## 🔍 Overview
+## Overview
 
 An AI-powered plant disease detection system that classifies plant leaf images into 38 disease categories using multiple ML/DL models:
 
@@ -19,7 +19,7 @@ An AI-powered plant disease detection system that classifies plant leaf images i
 
 ---
 
-## 🗂️ Project Structure
+## Project Structure
 
 ```
 plant_disease_project/
@@ -45,11 +45,11 @@ plant_disease_project/
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/plant-disease-ai.git
+git clone https://github.com/BhagyashreeKonde2505115/CMP_511_PlantBasedAiTool.git
 cd plant-disease-ai
 ```
 
