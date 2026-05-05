@@ -1,0 +1,68 @@
+=================================================================
+  AI-BASED PLANT DISEASE DETECTION — VIABILITY REPORT
+  CMP511 | Bhagyashree Konde | 2505115
+=================================================================
+
+📊 PERFORMANCE SUMMARY
+-----------------------------------------------------------------
+  Model               Accuracy        F1      Speed     Size   Score
+  ------------------ --------- --------- ---------- -------- -------
+  SVM                    92.7%     92.6%      3.1ms   14.7MB   91.0
+  Random Forest          85.7%     85.3%     33.7ms  180.7MB   77.1
+  Custom CNN             97.9%     97.9%     79.7ms   18.4MB   88.9
+  ResNet50               99.8%     99.8%     50.6ms   94.0MB   84.9
+  VGG16                  99.3%     99.3%    125.8ms  520.2MB   74.6
+
+
+🌾 AGRICULTURAL VIABILITY INSIGHTS
+-----------------------------------------------------------------
+
+  ✅ Best Accuracy    : ResNet50 (99.8%)
+  ✅ Fastest Model    : SVM (3.1ms)
+  ✅ Most Viable      : SVM (Score: 91.0/100)
+  ✅ Smallest Model   : SVM (14.7MB)
+
+
+🔍 KEY FINDINGS
+-----------------------------------------------------------------
+
+  1. DEEP LEARNING vs CLASSICAL ML
+     Deep learning models (CNN, ResNet50, VGG16) significantly
+     outperform classical ML models (SVM, Random Forest) in
+     accuracy and F1-score, confirming that image-based feature
+     learning is superior to handcrafted features for disease
+     detection.
+
+  2. TRANSFER LEARNING ADVANTAGE
+     ResNet50 and VGG16 achieve higher accuracy with fewer
+     training epochs by leveraging ImageNet pre-training.
+     This makes them practical for scenarios with limited
+     labelled agricultural data.
+
+  3. REAL-TIME VIABILITY
+     All deep learning models achieve inference times under
+     200ms, making them suitable for real-time mobile
+     applications used by farmers in the field.
+
+  4. DEPLOYMENT FEASIBILITY
+     The custom CNN offers the best balance of accuracy,
+     speed, and model size — ideal for edge deployment on
+     low-cost agricultural IoT devices or smartphones.
+
+  5. SCALABILITY
+     The system can be extended to new crops and diseases
+     by fine-tuning on additional labelled images, making
+     it scalable across diverse agricultural settings.
+    
+
+💡 RECOMMENDATIONS FOR AGRICULTURAL DEPLOYMENT
+-----------------------------------------------------------------
+
+  • Mobile App     : Use Custom CNN or ResNet50 for smartphone apps
+  • IoT/Edge Device: Use Custom CNN (smallest, fastest)
+  • Cloud Service  : Use ResNet50 or VGG16 for best accuracy
+  • Offline Use    : Custom CNN can run without internet
+  • Data Collection: System can help build larger datasets via
+                     crowdsourced farmer-submitted images
+    
+=================================================================

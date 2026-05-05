@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LeafAI Plant Disease Detection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #F5F2EB;
+      --surface:     #FDFCF8;
+      --green-dark:  #1C3A2A;
+      --green-mid:   #2D6A4F;
+      --green-light: #74B99A;
+      --green-pale:  #D8EDDF;
+      --amber:       #D4770A;
+      --amber-pale:  #FEF3DC;
+      --red:         #C0392B;
+      --red-pale:    #FDE8E6;
+      --text:        #1A1A18;
+      --text-muted:  #6B6B60;
+      --border:      #DDD8CC;
+      --radius:      16px;
+      --shadow:      0 4px 24px rgba(28,58,42,0.10);
+    }
+
+    html { font-size: 16px; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    /* ── Nav ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 48px;
+      background: var(--green-dark);
+    }
+    .logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.6rem;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+    .logo span { color: var(--green-light); }
+    .nav-pill {
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      border-radius: 99px;
+      padding: 6px 18px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 72px 24px 48px;
+    }
+    .hero-eyebrow {
+      display: inline-block;
+      background: var(--green-pale);
+      color: var(--green-mid);
+      border-radius: 99px;
+      padding: 5px 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      color: var(--green-dark);
+      line-height: 1.1;
+      max-width: 700px;
+      margin: 0 auto 16px;
+    }
+    .hero h1 em { font-style: italic; color: var(--green-mid); }
+    .hero p {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ── Main card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Upload zone ── */
+    .upload-card {
+      padding: 32px;
+    }
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 48px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s;
+      position: relative;
+      background: var(--bg);
+    }
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: var(--green-mid);
+      background: var(--green-pale);
+    }
+    .drop-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .drop-icon {
+      width: 52px; height: 52px;
+      background: var(--green-pale);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+    }
+    .drop-icon svg { width: 24px; height: 24px; fill: var(--green-mid); }
+    .drop-zone h3 { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+    .drop-zone p { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* Preview */
+    .preview-wrap {
+      display: none;
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--bg);
+      aspect-ratio: 4/3;
+    }
+    .preview-wrap img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .preview-remove {
+      position: absolute; top: 10px; right: 10px;
+      background: rgba(0,0,0,0.55); color: #fff;
+      border: none; border-radius: 99px;
+      padding: 4px 12px; font-size: 0.78rem; cursor: pointer;
+    }
+
+    /* Model selector */
+    .model-select-wrap { margin-top: 20px; }
+    .model-select-wrap label {
+      display: block; font-size: 0.78rem; font-weight: 600;
+      color: var(--text-muted); margin-bottom: 8px;
+      text-transform: uppercase; letter-spacing: 0.8px;
+    }
+    select {
+      width: 100%; padding: 10px 14px; border: 1px solid var(--border);
+      border-radius: 8px; background: var(--surface); font-family: inherit;
+      font-size: 0.92rem; color: var(--text); outline: none; cursor: pointer;
+    }
+    select:focus { border-color: var(--green-mid); }
+
+    /* Submit */
+    .btn-analyse {
+      width: 100%; margin-top: 20px;
+      padding: 14px;
+      background: var(--green-dark);
+      color: #fff;
+      border: none; border-radius: 10px;
+      font-family: inherit; font-size: 1rem; font-weight: 600;
+      cursor: pointer; transition: background 0.2s, transform 0.1s;
+    }
+    .btn-analyse:hover { background: var(--green-mid); }
+    .btn-analyse:active { transform: scale(0.98); }
+    .btn-analyse:disabled { background: #aaa; cursor: not-allowed; }
+
+    /* ── Results ── */
+    .result-card {
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .state-placeholder {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 48px 24px;
+    }
+    .state-placeholder svg { opacity: 0.25; }
+    .state-placeholder p { font-size: 0.9rem; }
+
+    /* Prediction banner */
+    .prediction-banner {
+      background: var(--green-dark);
+      border-radius: 12px;
+      padding: 24px;
+      color: #fff;
+    }
+    .prediction-banner .pred-label {
+      font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 1px; text-transform: uppercase;
+      color: var(--green-light); margin-bottom: 6px;
+    }
+    .prediction-banner .pred-class {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.6rem;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    .confidence-bar-wrap { }
+    .confidence-label {
+      display: flex; justify-content: space-between;
+      font-size: 0.8rem; margin-bottom: 6px;
+      color: rgba(255,255,255,0.7);
+    }
+    .confidence-track {
+      height: 8px; background: rgba(255,255,255,0.15);
+      border-radius: 99px; overflow: hidden;
+    }
+    .confidence-fill {
+      height: 100%; border-radius: 99px;
+      background: var(--green-light);
+      transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+      width: 0%;
+    }
+
+    /* Status tags */
+    .status-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 99px;
+      font-size: 0.78rem; font-weight: 600;
+    }
+    .tag-healthy   { background: var(--green-pale); color: var(--green-mid); }
+    .tag-diseased  { background: var(--red-pale);   color: var(--red); }
+    .tag-warning   { background: var(--amber-pale);  color: var(--amber); }
+
+    /* Top 5 */
+    .top5-section h4 {
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .top5-list { display: flex; flex-direction: column; gap: 8px; }
+    .top5-item {
+      display: grid; grid-template-columns: 1fr auto;
+      align-items: center; gap: 12px;
+    }
+    .top5-bar-wrap { position: relative; }
+    .top5-name { font-size: 0.85rem; font-weight: 500; margin-bottom: 3px; }
+    .top5-track {
+      height: 6px; background: var(--border);
+      border-radius: 99px; overflow: hidden;
+    }
+    .top5-fill {
+      height: 100%; border-radius: 99px;
+      background: var(--green-light);
+      transition: width 0.7s ease;
+      width: 0%;
+    }
+    .top5-fill.rank-0 { background: var(--green-mid); }
+    .top5-pct { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
+
+    /* Model badge */
+    .meta-row {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.8rem; color: var(--text-muted);
+    }
+    .model-badge {
+      background: var(--green-pale); color: var(--green-mid);
+      border-radius: 99px; padding: 3px 10px;
+      font-size: 0.75rem; font-weight: 600;
+    }
+
+    /* Loading spinner */
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--green-pale);
+      border-top-color: var(--green-mid);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-state {
+      display: none;
+      flex-direction: column; align-items: center;
+      justify-content: center; gap: 14px;
+      padding: 48px; text-align: center;
+      color: var(--text-muted); font-size: 0.9rem;
+    }
+
+    /* ── Stats bar ── */
+    .stats-bar {
+      max-width: 1100px; margin: 48px auto 0;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .stat-tile {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+    }
+    .stat-tile .st-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem; color: var(--green-dark);
+    }
+    .stat-tile .st-label {
+      font-size: 0.8rem; color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ── Model comparison ── */
+    .comparison-section {
+      max-width: 1100px; margin: 32px auto 0; padding: 0 24px;
+    }
+    .section-header {
+      display: flex; align-items: baseline; gap: 12px;
+      margin-bottom: 20px;
+    }
+    .section-header h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.6rem; color: var(--green-dark);
+    }
+    .section-header .subtitle { font-size: 0.85rem; color: var(--text-muted); }
+    .comp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .comp-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px;
+    }
+    .comp-card .cc-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 12px; }
+    .comp-metric { display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 6px; }
+    .comp-metric span:last-child { font-weight: 600; color: var(--green-mid); }
+    .no-results-note {
+      font-size: 0.85rem; color: var(--text-muted);
+      background: var(--amber-pale); border-radius: 10px;
+      padding: 12px 16px; display: inline-block;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      nav { padding: 16px 24px; }
+      .main-grid { grid-template-columns: 1fr; }
+      .stats-bar { grid-template-columns: 1fr 1fr; }
+      .hero { padding: 48px 24px 36px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Leaf<span>AI</span></div>
+  <div class="nav-pill">Plant Disease Detection · CMP511</div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-eyebrow">AI-Powered Diagnostics</div>
+  <h1>Identify plant disease <em>instantly</em> from leaf images</h1>
+  <p>Upload a photo of any plant leaf and our deep learning models will diagnose the disease in seconds.</p>
+</section>
+
+<!-- Main interface -->
+<div class="main-grid">
+
+  <!-- Upload -->
+  <div class="card upload-card">
+    <div class="section-label">Upload Leaf Image</div>
+
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.bmp,.webp" />
+      <div class="drop-icon">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM12 18l-4-4h2.5v-3h3v3H16l-4 4z"/></svg>
+      </div>
+      <h3>Drop your image here</h3>
+      <p>or click to browse — JPG, PNG, BMP</p>
+    </div>
+
+    <div class="preview-wrap" id="previewWrap">
+      <img id="previewImg" src="" alt="Preview" />
+      <button class="preview-remove" id="removeBtn">✕ Remove</button>
+    </div>
+
+    <div class="model-select-wrap">
+      <label for="modelSelect">AI Model</label>
+      <select id="modelSelect">
+        <option value="">— Best available —</option>
+        {% for m in models %}
+        <option value="{{ m }}">{{ m }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <button class="btn-analyse" id="analyseBtn" disabled>
+      Analyse Leaf
+    </button>
+  </div>
+
+  <!-- Results -->
+  <div class="card result-card" id="resultCard">
+
+    <div class="state-placeholder" id="placeholderState">
+      <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="30" stroke="#1C3A2A" stroke-width="2"/>
+        <path d="M20 38 Q28 20 44 26 Q36 44 20 38Z" fill="#2D6A4F" opacity="0.3"/>
+        <path d="M32 38 Q34 28 44 26" stroke="#2D6A4F" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <p>Upload a leaf image and press<br><strong>Analyse Leaf</strong> to get your diagnosis.</p>
+    </div>
+
+    <div class="loading-state" id="loadingState">
+      <div class="spinner"></div>
+      <p>Analysing leaf image…</p>
+    </div>
+
+    <div id="resultContent" style="display:none; flex-direction:column; gap:20px;">
+
+      <div class="prediction-banner" id="predBanner">
+        <div class="pred-label">Diagnosis</div>
+        <div class="pred-class" id="predClass">—</div>
+        <div id="predTag"></div>
+        <div class="confidence-bar-wrap" style="margin-top:14px">
+          <div class="confidence-label">
+            <span>Confidence</span>
+            <span id="confPct">—</span>
+          </div>
+          <div class="confidence-track"><div class="confidence-fill" id="confFill"></div></div>
+        </div>
+      </div>
+
+      <div class="top5-section">
+        <h4>Top 5 Predictions</h4>
+        <div class="top5-list" id="top5List"></div>
+      </div>
+
+      <div class="meta-row">
+        <span>Model used:</span>
+        <span class="model-badge" id="modelBadge">—</span>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Stats bar -->
+<div class="stats-bar">
+  <div class="stat-tile"><div class="st-num">38</div><div class="st-label">Plant disease classes</div></div>
+  <div class="stat-tile"><div class="st-num">54K+</div><div class="st-label">Training images</div></div>
+  <div class="stat-tile"><div class="st-num">5</div><div class="st-label">AI models available</div></div>
+  <div class="stat-tile"><div class="st-num">&lt;1s</div><div class="st-label">Inference time</div></div>
+</div>
+
+<!-- Model comparison -->
+<div class="comparison-section">
+  <div class="section-header">
+    <h2>Model Comparison</h2>
+    <span class="subtitle">Loaded from training results</span>
+  </div>
+  <div id="compContent">
+    <span class="no-results-note">Run <code>python train_all.py</code> to populate comparison results.</span>
+  </div>
+</div>
+
+<script>
+const dropZone    = document.getElementById("dropZone");
+const fileInput   = document.getElementById("fileInput");
+const previewWrap = document.getElementById("previewWrap");
+const previewImg  = document.getElementById("previewImg");
+const removeBtn   = document.getElementById("removeBtn");
+const analyseBtn  = document.getElementById("analyseBtn");
+const modelSelect = document.getElementById("modelSelect");
+
+let selectedFile = null;
+
+function showPreview(file) {
+  selectedFile = file;
+  const url = URL.createObjectURL(file);
+  previewImg.src = url;
+  dropZone.style.display = "none";
+  previewWrap.style.display = "block";
+  analyseBtn.disabled = false;
+}
+
+function clearPreview() {
+  selectedFile = null;
+  previewImg.src = "";
+  previewWrap.style.display = "none";
+  dropZone.style.display = "block";
+  analyseBtn.disabled = true;
+  fileInput.value = "";
+}
+
+fileInput.addEventListener("change", e => {
+  if (e.target.files[0]) showPreview(e.target.files[0]);
+});
+
+dropZone.addEventListener("dragover", e => { e.preventDefault(); dropZone.classList.add("drag-over"); });
+dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drag-over"));
+dropZone.addEventListener("drop", e => {
+  e.preventDefault(); dropZone.classList.remove("drag-over");
+  if (e.dataTransfer.files[0]) showPreview(e.dataTransfer.files[0]);
+});
+
+removeBtn.addEventListener("click", clearPreview);
+
+// ── Analyse ──
+analyseBtn.addEventListener("click", async () => {
+  if (!selectedFile) return;
+
+  document.getElementById("placeholderState").style.display = "none";
+  document.getElementById("loadingState").style.display = "flex";
+  document.getElementById("resultContent").style.display = "none";
+  analyseBtn.disabled = true;
+
+  const fd = new FormData();
+  fd.append("image", selectedFile);
+  if (modelSelect.value) fd.append("model", modelSelect.value);
+
+  try {
+    const res  = await fetch("/api/predict", { method: "POST", body: fd });
+    const data = await res.json();
+
+    document.getElementById("loadingState").style.display = "none";
+
+    if (data.error) {
+      alert("Error: " + data.error);
+      document.getElementById("placeholderState").style.display = "flex";
+      return;
+    }
+
+    renderResult(data);
+  } catch (err) {
+    document.getElementById("loadingState").style.display = "none";
+    document.getElementById("placeholderState").style.display = "flex";
+    alert("Request failed: " + err.message);
+  } finally {
+    analyseBtn.disabled = false;
+  }
+});
+
+function renderResult(data) {
+  const cls = data.predicted_class;
+  const conf = data.confidence;
+  const isHealthy = cls.toLowerCase().includes("healthy");
+
+  document.getElementById("predClass").textContent = cls.replace(/_/g, " ");
+  document.getElementById("confPct").textContent = (conf * 100).toFixed(1) + "%";
+
+  const tagEl = document.getElementById("predTag");
+  tagEl.innerHTML = isHealthy
+    ? '<span class="status-tag tag-healthy">✓ Healthy</span>'
+    : '<span class="status-tag tag-diseased">⚠ Diseased</span>';
+
+  // Animate fill after a tick
+  setTimeout(() => {
+    document.getElementById("confFill").style.width = (conf * 100) + "%";
+  }, 50);
+
+  // Top 5
+  const top5El = document.getElementById("top5List");
+  top5El.innerHTML = "";
+  data.top5.forEach(([name, prob], i) => {
+    top5El.innerHTML += `
+      <div class="top5-item">
+        <div class="top5-bar-wrap">
+          <div class="top5-name">${name.replace(/_/g, " ")}</div>
+          <div class="top5-track">
+            <div class="top5-fill rank-${i}" style="width:0%" data-w="${(prob*100).toFixed(1)}"></div>
+          </div>
+        </div>
+        <div class="top5-pct">${(prob*100).toFixed(1)}%</div>
+      </div>`;
+  });
+  setTimeout(() => {
+    document.querySelectorAll(".top5-fill").forEach(el => {
+      el.style.width = el.dataset.w + "%";
+    });
+  }, 80);
+
+  document.getElementById("modelBadge").textContent = data.model_used;
+  document.getElementById("resultContent").style.display = "flex";
+}
+
+// ── Load comparison results ──
+async function loadComparison() {
+  try {
+    const res = await fetch("/api/results");
+    const data = await res.json();
+    if (data.error) return;
+
+    const wrap = document.getElementById("compContent");
+    const metrics = ["accuracy","precision","recall","f1"];
+    const labels  = ["Accuracy","Precision","Recall","F1"];
+
+    wrap.innerHTML = `<div class="comp-grid">${
+      Object.entries(data).map(([name, m]) => `
+        <div class="comp-card">
+          <div class="cc-name">${name}</div>
+          ${metrics.map((k,i) => `
+            <div class="comp-metric">
+              <span>${labels[i]}</span>
+              <span>${(m[k]*100).toFixed(1)}%</span>
+            </div>`).join("")}
+        </div>`).join("")
+    }</div>`;
+  } catch {}
+}
+
+loadComparison();
+</script>
+</body>
+</html>

@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PlantMind AI Disease Analysis Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0E1A0F; --paper:#F4F0E6; --sage:#4A7C59; --moss:#2D5A3D;
+  --leaf:#7DBF8A; --pale:#E8F0EA; --amber:#C8860A; --amber-pale:#FEF3D6;
+  --red:#B83232; --red-pale:#FDE8E8; --border:#D4CDB8;
+  --serif:'Fraunces',serif; --mono:'DM Mono',monospace; --sans:'Instrument Sans',sans-serif;
+}
+html{font-size:16px}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height:100vh;
+  background-image:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(74,124,89,.08) 0%,transparent 60%),
+  radial-gradient(ellipse 60% 40% at 80% 90%,rgba(45,90,61,.06) 0%,transparent 60%);}
+
+/* NAV */
+nav{display:flex;align-items:center;justify-content:space-between;padding:18px 48px;
+  border-bottom:1px solid var(--border);background:rgba(244,240,230,.92);
+  backdrop-filter:blur(12px);position:sticky;top:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-mark{width:34px;height:34px;background:var(--moss);border-radius:9px;
+  display:flex;align-items:center;justify-content:center;}
+.logo-mark svg{width:18px;height:18px;fill:#fff}
+.logo-text{font-family:var(--serif);font-size:1.3rem;font-weight:600;color:var(--moss)}
+.logo-text span{color:var(--sage);font-weight:300;font-style:italic}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-link{font-size:0.82rem;color:var(--sage);text-decoration:none;font-weight:500;
+  padding:6px 14px;border-radius:8px;transition:background .15s}
+.nav-link:hover{background:var(--pale)}
+.nav-badge{background:var(--moss);color:#fff;border-radius:99px;padding:5px 14px;
+  font-size:0.72rem;font-family:var(--mono);letter-spacing:.8px;text-transform:uppercase}
+
+/* HERO */
+.hero{text-align:center;padding:52px 24px 36px;max-width:700px;margin:0 auto}
+.hero-tag{display:inline-block;background:var(--moss);color:#fff;font-family:var(--mono);
+  font-size:.68rem;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;
+  border-radius:4px;margin-bottom:16px}
+.hero h1{font-family:var(--serif);font-size:clamp(2rem,4.5vw,3.2rem);font-weight:700;
+  line-height:1.15;margin-bottom:12px}
+.hero h1 em{font-style:italic;font-weight:300;color:var(--sage)}
+.hero p{font-size:.98rem;color:#4A4A3A;line-height:1.7;max-width:520px;margin:0 auto}
+
+/* WORKSPACE */
+.workspace{display:grid;grid-template-columns:420px 1fr;gap:24px;
+  max-width:1160px;margin:0 auto;padding:0 24px 60px;align-items:start}
+
+/* PANEL */
+.panel{background:#fff;border:1px solid var(--border);border-radius:18px;overflow:hidden;
+  box-shadow:0 2px 18px rgba(14,26,15,.07)}
+.ph{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px}
+.ph-dot{width:7px;height:7px;border-radius:50%;background:var(--leaf)}
+.ph h2{font-family:var(--serif);font-size:1.05rem;font-weight:600}
+.pb{padding:22px}
+
+/* UPLOAD */
+.dz{border:2px dashed var(--border);border-radius:12px;padding:36px 18px;text-align:center;
+  cursor:pointer;transition:all .2s;background:var(--paper);position:relative}
+.dz input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.dz:hover,.dz.over{border-color:var(--sage);background:var(--pale)}
+.dz-icon{width:52px;height:52px;background:var(--pale);border-radius:12px;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.dz-icon svg{width:24px;height:24px;fill:var(--sage)}
+.dz h3{font-size:.9rem;font-weight:600;margin-bottom:5px}
+.dz p{font-size:.78rem;color:#6B6B5A}
+.prev-box{display:none;border-radius:10px;overflow:hidden;position:relative;aspect-ratio:4/3}
+.prev-box img{width:100%;height:100%;object-fit:cover}
+.prev-rm{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;
+  border:none;border-radius:7px;padding:4px 10px;font-size:.75rem;font-family:var(--sans);cursor:pointer}
+
+/* MODE TABS */
+.mode-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:18px}
+.mt{padding:9px 6px;border:1px solid var(--border);border-radius:9px;background:var(--paper);
+  cursor:pointer;text-align:center;transition:all .2s;font-family:var(--sans)}
+.mt:hover{border-color:var(--sage);background:var(--pale)}
+.mt.active{border-color:var(--moss);background:var(--moss);color:#fff}
+.mt-icon{font-size:1.1rem;display:block;margin-bottom:3px}
+.mt-lbl{font-size:.72rem;font-weight:600;display:block}
+
+/* CONTEXT */
+.ctx-wrap{margin-top:14px}
+.ctx-wrap label{display:block;font-size:.72rem;font-weight:600;color:#6B6B5A;
+  margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px;font-family:var(--mono)}
+select,textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:9px;
+  background:var(--paper);font-family:var(--sans);font-size:.86rem;color:var(--ink);outline:none;transition:border .2s}
+select:focus,textarea:focus{border-color:var(--sage)}
+textarea{resize:vertical;min-height:70px}
+
+/* BUTTON */
+.btn-go{width:100%;margin-top:14px;padding:13px;background:var(--moss);color:#fff;
+  border:none;border-radius:11px;font-family:var(--serif);font-size:1rem;font-weight:600;
+  font-style:italic;cursor:pointer;transition:all .2s;letter-spacing:.3px}
+.btn-go:hover{background:var(--sage);transform:translateY(-1px)}
+.btn-go:active{transform:translateY(0)}
+.btn-go:disabled{background:#aaa;cursor:not-allowed;transform:none}
+
+/* RIGHT PANEL STATES */
+.r-empty{padding:52px 24px;text-align:center;color:#8A8A7A}
+.r-empty svg{opacity:.2;margin-bottom:10px}
+.r-empty p{font-size:.86rem;line-height:1.6}
+.r-loading{display:none;padding:52px 24px;text-align:center}
+.leaf-anim{width:44px;height:44px;margin:0 auto 14px;animation:sway 1.4s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+.r-loading p{font-size:.84rem;color:#6B6B5A;font-family:var(--mono)}
+.l-steps{display:flex;flex-direction:column;gap:5px;margin-top:14px;
+  max-width:260px;margin-left:auto;margin-right:auto;text-align:left}
+.ls{display:flex;align-items:center;gap:7px;font-size:.74rem;font-family:var(--mono);
+  color:#8A8A7A;opacity:0;transform:translateY(3px);transition:all .4s}
+.ls.show{opacity:1;transform:translateY(0)}
+.ls-dot{width:6px;height:6px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .3s}
+.ls.done .ls-dot{background:var(--leaf)}
+.ls.active .ls-dot{background:var(--amber);animation:pulse .8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* RESULT */
+.r-content{display:none;flex-direction:column;gap:0}
+
+/* BANNER */
+.diag-banner{padding:22px;background:linear-gradient(135deg,var(--moss) 0%,#1A3D28 100%);
+  color:#fff;position:relative;overflow:hidden}
+.diag-banner::before{content:'';position:absolute;top:-28px;right:-28px;width:110px;height:110px;
+  border-radius:50%;background:rgba(255,255,255,.05)}
+.db-mode{font-family:var(--mono);font-size:.66rem;letter-spacing:1.4px;text-transform:uppercase;
+  color:rgba(255,255,255,.6);margin-bottom:6px}
+.db-title{font-family:var(--serif);font-size:1.4rem;font-weight:700;line-height:1.2;margin-bottom:10px}
+.db-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+.dtag{padding:3px 10px;border-radius:6px;font-size:.7rem;font-weight:600;font-family:var(--mono);
+  background:rgba(255,255,255,.12)}
+.dtag-h{background:rgba(125,191,138,.25);color:#A8E6B5}
+.dtag-d{background:rgba(184,50,50,.25);color:#F5A0A0}
+.dtag-w{background:rgba(200,134,10,.25);color:#F5CC80}
+
+/* ANALYSIS TEXT */
+.a-section{padding:20px 22px;border-bottom:1px solid var(--border)}
+.a-label{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.a-avatar{width:26px;height:26px;background:var(--moss);border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.74rem;color:#fff;font-family:var(--mono);font-weight:500}
+.a-lbl-txt{font-size:.78rem;font-weight:600;color:var(--moss)}
+.a-text{font-size:.86rem;line-height:1.8;color:#2A2A1A;white-space:pre-wrap;font-family:var(--mono)}
+
+/* SEVERITY */
+.sev-section{padding:18px 22px;border-bottom:1px solid var(--border)}
+.sev-lbl{font-family:var(--mono);font-size:.66rem;letter-spacing:1.1px;text-transform:uppercase;
+  color:#8A8A7A;margin-bottom:10px}
+.sev-row{display:flex;align-items:center;gap:10px}
+.sev-track{flex:1;height:8px;background:var(--border);border-radius:99px;overflow:hidden}
+.sev-fill{height:100%;border-radius:99px;transition:width .8s cubic-bezier(.4,0,.2,1);width:0%}
+.sv-l{background:var(--leaf)} .sv-m{background:var(--amber)} .sv-h{background:var(--red)}
+.sev-val{font-family:var(--mono);font-size:.76rem;font-weight:500;min-width:58px;text-align:right}
+
+/* CHAT */
+.chat-section{padding:18px 22px;background:var(--paper)}
+.chat-lbl{font-size:.72rem;font-weight:600;color:#6B6B5A;text-transform:uppercase;
+  letter-spacing:.8px;font-family:var(--mono);margin-bottom:10px}
+.chat-hist{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;max-height:220px;overflow-y:auto}
+.msg{padding:9px 13px;border-radius:9px;font-size:.83rem;line-height:1.6}
+.msg.user{background:var(--pale);border:1px solid var(--border);align-self:flex-end;max-width:85%}
+.msg.ai{background:#fff;border:1px solid var(--border);white-space:pre-wrap;font-family:var(--mono);font-size:.8rem}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.chip{padding:5px 11px;background:#fff;border:1px solid var(--border);border-radius:99px;
+  font-size:.75rem;cursor:pointer;transition:all .15s;font-family:var(--sans)}
+.chip:hover{border-color:var(--sage);background:var(--pale);color:var(--moss)}
+.chat-input-row{display:flex;gap:7px}
+.chat-input{flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:9px;
+  background:#fff;font-family:var(--sans);font-size:.84rem;outline:none;transition:border .2s}
+.chat-input:focus{border-color:var(--sage)}
+.chat-btn{padding:9px 14px;background:var(--moss);color:#fff;border:none;border-radius:9px;
+  font-family:var(--sans);font-size:.84rem;font-weight:600;cursor:pointer;transition:background .2s;white-space:nowrap}
+.chat-btn:hover{background:var(--sage)}
+.chat-btn:disabled{background:#aaa;cursor:not-allowed}
+
+/* INFO STRIP */
+.info-strip{max-width:1160px;margin:0 auto;padding:0 24px 40px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.it{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 20px}
+.it-num{font-family:var(--serif);font-size:1.7rem;font-weight:700;color:var(--moss);margin-bottom:3px}
+.it-lbl{font-size:.78rem;color:#6B6B5A;line-height:1.4}
+
+@media(max-width:860px){
+  .workspace{grid-template-columns:1fr}
+  .info-strip{grid-template-columns:1fr 1fr}
+  nav{padding:14px 20px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="/">
+    <div class="logo-mark"><svg viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 19.82L5.71 21 7 18.5c.97.69 2.06 1.2 3.23 1.43C14.64 20.79 19 16.82 19 12c0-1.06-.19-2.08-.53-3.03L17 8z"/></svg></div>
+    <div class="logo-text">PlantMind <span>AI</span></div>
+  </a>
+  <div class="nav-right">
+    <a href="/" class="nav-link">Main App</a>
+    <div class="nav-badge">AI Tool — No API Key Needed</div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-tag">Powered by Your Trained Models</div>
+  <h1>Intelligent plant disease <em>analysis & advice</em></h1>
+  <p>Upload a leaf image — get an in-depth AI diagnosis, treatment plan, severity rating, and expert agricultural guidance. No internet API required.</p>
+</section>
+
+<div class="workspace">
+
+  <!-- LEFT: Input -->
+  <div class="panel">
+    <div class="ph"><div class="ph-dot"></div><h2>Leaf Analysis Input</h2></div>
+    <div class="pb">
+
+      <div class="dz" id="dz">
+        <input type="file" id="fileIn" accept=".jpg,.jpeg,.png,.bmp,.webp"/>
+        <div class="dz-icon"><svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg></div>
+        <h3>Drop your leaf photo here</h3>
+        <p>or click to browse — JPG, PNG supported</p>
+      </div>
+      <div class="prev-box" id="prevBox">
+        <img id="prevImg" src="" alt="preview"/>
+        <button class="prev-rm" id="rmBtn">✕ Remove</button>
+      </div>
+
+      <div style="margin-top:18px">
+        <div style="font-family:var(--mono);font-size:.68rem;letter-spacing:1.2px;text-transform:uppercase;color:#8A8A7A;margin-bottom:8px">Analysis Mode</div>
+        <div class="mode-tabs">
+          <div class="mt active" data-mode="full"><span class="mt-icon">🔬</span><span class="mt-lbl">Full Analysis</span></div>
+          <div class="mt" data-mode="treatment"><span class="mt-icon">💊</span><span class="mt-lbl">Treatment</span></div>
+          <div class="mt" data-mode="prevention"><span class="mt-icon">🛡️</span><span class="mt-lbl">Prevention</span></div>
+        </div>
+      </div>
+
+      <div class="ctx-wrap">
+        <label>AI Model</label>
+        <select id="modelSel">
+          <option value="">— Best available —</option>
+          {% for m in models %}<option value="{{ m }}">{{ m }}</option>{% endfor %}
+        </select>
+      </div>
+
+      <div class="ctx-wrap">
+        <label>Additional Context (optional)</label>
+        <textarea id="ctxIn" placeholder="e.g. Tomato plant, outdoor garden, noticed spots 3 days ago, humid climate..."></textarea>
+      </div>
+
+      <button class="btn-go" id="goBtn" disabled>Analyse with AI →</button>
+    </div>
+  </div>
+
+  <!-- RIGHT: Results -->
+  <div class="panel">
+    <div class="ph"><div class="ph-dot" style="background:var(--amber)"></div><h2>AI Diagnosis & Recommendations</h2></div>
+
+    <div class="r-empty" id="rEmpty">
+      <svg width="60" height="60" viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="30" stroke="#4A7C59" stroke-width="1.5"/>
+        <path d="M18 40 Q26 18 46 28 Q38 46 18 40Z" fill="#4A7C59" opacity="0.2"/>
+        <path d="M32 40 Q35 26 46 28" stroke="#4A7C59" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <p style="margin-top:10px">Upload a leaf image and press<br><strong>Analyse with AI →</strong> to begin.</p>
+    </div>
+
+    <div class="r-loading" id="rLoad">
+      <div class="leaf-anim">
+        <svg viewBox="0 0 48 48" fill="none">
+          <path d="M36 8C18 12 13 30 8 38L12 40L14 36c2 1.5 4.2 2.4 6.6 2.8C28 40 36 32 36 24c0-2.1-.4-4.2-1.1-6L36 8z" fill="#4A7C59"/>
+        </svg>
+      </div>
+      <p>Analysing your leaf...</p>
+      <div class="l-steps">
+        <div class="ls" id="ls1"><div class="ls-dot"></div>Running AI model prediction</div>
+        <div class="ls" id="ls2"><div class="ls-dot"></div>Identifying disease patterns</div>
+        <div class="ls" id="ls3"><div class="ls-dot"></div>Generating treatment plan</div>
+        <div class="ls" id="ls4"><div class="ls-dot"></div>Compiling agricultural insights</div>
+      </div>
+    </div>
+
+    <div class="r-content" id="rContent">
+      <div class="diag-banner" id="dBanner">
+        <div class="db-mode" id="dbMode">FULL ANALYSIS</div>
+        <div class="db-title" id="dbTitle">—</div>
+        <div class="db-tags" id="dbTags"></div>
+      </div>
+
+      <div class="a-section">
+        <div class="a-label">
+          <div class="a-avatar">AI</div>
+          <div class="a-lbl-txt">PlantMind Analysis Engine</div>
+        </div>
+        <div class="a-text" id="aText"></div>
+      </div>
+
+      <div class="sev-section">
+        <div class="sev-lbl">Disease Severity</div>
+        <div class="sev-row">
+          <div class="sev-track"><div class="sev-fill" id="sevFill"></div></div>
+          <div class="sev-val" id="sevVal">—</div>
+        </div>
+      </div>
+
+      <div class="chat-section">
+        <div class="chat-lbl">Ask a follow-up question</div>
+        <div class="chat-hist" id="chatHist"></div>
+        <div class="chips" id="chips"></div>
+        <div class="chat-input-row">
+          <input class="chat-input" id="chatIn" placeholder="Ask about treatment, prevention, products, soil..."/>
+          <button class="chat-btn" id="chatBtn" disabled>Ask AI</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INFO STRIP -->
+<div class="info-strip">
+  <div class="it"><div class="it-num">38+</div><div class="it-lbl">Disease classes in knowledge base</div></div>
+  <div class="it"><div class="it-num">5</div><div class="it-lbl">Trained AI models available</div></div>
+  <div class="it"><div class="it-num">100%</div><div class="it-lbl">Free — no API key needed</div></div>
+  <div class="it"><div class="it-num">&lt;2s</div><div class="it-lbl">Average analysis time</div></div>
+</div>
+
+<script>
+let mode='full', file=null, currentClass='', currentDisease='';
+
+const dz=document.getElementById('dz'), fileIn=document.getElementById('fileIn'),
+      prevBox=document.getElementById('prevBox'), prevImg=document.getElementById('prevImg'),
+      rmBtn=document.getElementById('rmBtn'), goBtn=document.getElementById('goBtn'),
+      rEmpty=document.getElementById('rEmpty'), rLoad=document.getElementById('rLoad'),
+      rContent=document.getElementById('rContent'), chatBtn=document.getElementById('chatBtn'),
+      chatIn=document.getElementById('chatIn'), chatHist=document.getElementById('chatHist');
+
+// File handling
+function setFile(f){
+  if(!f||!f.type.startsWith('image/'))return;
+  file=f;
+  prevImg.src=URL.createObjectURL(f);
+  dz.style.display='none'; prevBox.style.display='block'; goBtn.disabled=false;
+}
+fileIn.addEventListener('change',e=>setFile(e.target.files[0]));
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over')});
+dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');setFile(e.dataTransfer.files[0])});
+rmBtn.addEventListener('click',()=>{
+  file=null; prevImg.src=''; prevBox.style.display='none';
+  dz.style.display='block'; goBtn.disabled=true; fileIn.value='';
+});
+
+// Mode tabs
+document.querySelectorAll('.mt').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.mt').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active'); mode=t.dataset.mode;
+  });
+});
+
+// Loading animation
+function animLoad(){
+  ['ls1','ls2','ls3','ls4'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.classList.remove('show','done','active');
+  });
+  let cur=0;
+  const ids=['ls1','ls2','ls3','ls4'];
+  function next(){
+    if(cur>0){
+      document.getElementById(ids[cur-1]).classList.remove('active');
+      document.getElementById(ids[cur-1]).classList.add('done');
+    }
+    if(cur<ids.length){
+      const el=document.getElementById(ids[cur]);
+      el.classList.add('show','active'); cur++;
+      setTimeout(next,850);
+    }
+  }
+  next();
+}
+
+// Main analyse
+goBtn.addEventListener('click',async()=>{
+  if(!file)return;
+  rEmpty.style.display='none'; rContent.style.display='none';
+  rLoad.style.display='block'; goBtn.disabled=true;
+  chatHist.innerHTML=''; animLoad();
+
+  const fd=new FormData();
+  fd.append('image',file);
+  fd.append('mode',mode);
+  fd.append('context',document.getElementById('ctxIn').value);
+  const sel=document.getElementById('modelSel').value;
+  if(sel) fd.append('model',sel);
+
+  try{
+    const res=await fetch('/api/ai-analyse',{method:'POST',body:fd});
+    const data=await res.json();
+    if(data.error){throw new Error(data.error)}
+    showResult(data);
+  }catch(err){
+    rLoad.style.display='none'; rEmpty.style.display='block';
+    rEmpty.querySelector('p').textContent='Error: '+err.message;
+  }finally{
+    goBtn.disabled=false;
+  }
+});
+
+function showResult(d){
+  rLoad.style.display='none';
+  currentClass=d.class_name||''; currentDisease=d.disease||'';
+
+  // Banner
+  const modeLabels={full:'FULL ANALYSIS',treatment:'TREATMENT GUIDE',prevention:'PREVENTION PLAN'};
+  document.getElementById('dbMode').textContent=modeLabels[mode]||'ANALYSIS';
+  document.getElementById('dbTitle').textContent=d.disease||'Analysis Complete';
+
+  const tags=document.getElementById('dbTags');
+  tags.innerHTML='';
+  if(d.is_healthy){
+    tags.innerHTML='<span class="dtag dtag-h">✓ Healthy</span>';
+  } else {
+    const sev=d.severity||0;
+    const sl=sev<34?'Low':sev<67?'Medium':'High';
+    tags.innerHTML=`<span class="dtag dtag-d">⚠ Diseased</span><span class="dtag dtag-w">Severity: ${sev}% — ${sl}</span>`;
+  }
+
+  // Analysis text
+  document.getElementById('aText').textContent=d.analysis||'';
+
+  // Severity bar
+  const sev=d.severity||0;
+  const fill=document.getElementById('sevFill');
+  const val=document.getElementById('sevVal');
+  fill.className='sev-fill '+(sev<34?'sv-l':sev<67?'sv-m':'sv-h');
+  val.textContent=sev<34?'Low — '+sev+'%':sev<67?'Medium — '+sev+'%':'High — '+sev+'%';
+  val.style.color=sev<34?'var(--sage)':sev<67?'var(--amber)':'var(--red)';
+  setTimeout(()=>{fill.style.width=sev+'%'},80);
+
+  // Chips
+  const chipQ=d.is_healthy
+    ?['How to maintain health?','Preventive care tips','Best fertilisers?','Companion planting?']
+    :['Organic treatment options?','Will it spread to other plants?','How long to recover?','What products to buy?','Watering advice?'];
+  document.getElementById('chips').innerHTML=chipQ.map(c=>`<div class="chip" onclick="askQ('${c}')">${c}</div>`).join('');
+
+  chatBtn.disabled=false;
+  rContent.style.display='flex';
+}
+
+// Follow-up
+async function askQ(q){
+  const question=q||chatIn.value.trim();
+  if(!question)return;
+  chatIn.value=''; chatBtn.disabled=true;
+  chatHist.innerHTML+=`<div class="msg user">${question}</div>`;
+  chatHist.innerHTML+=`<div class="msg ai" id="tmp">Thinking...</div>`;
+  chatHist.scrollTop=chatHist.scrollHeight;
+
+  try{
+    const res=await fetch('/api/followup',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({question,diagnosis:currentDisease,class_name:currentClass})
+    });
+    const data=await res.json();
+    const ans=data.answer||data.error||'No response.';
+    document.getElementById('tmp').outerHTML=`<div class="msg ai">${ans}</div>`;
+  }catch(err){
+    document.getElementById('tmp').outerHTML=`<div class="msg ai" style="color:var(--red)">Error: ${err.message}</div>`;
+  }finally{
+    chatBtn.disabled=false;
+    chatHist.scrollTop=chatHist.scrollHeight;
+  }
+}
+chatBtn.addEventListener('click',()=>askQ());
+chatIn.addEventListener('keydown',e=>{if(e.key==='Enter')askQ()});
+</script>
+</body>
+</html>
