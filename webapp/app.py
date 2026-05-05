@@ -6,6 +6,25 @@ Run: python webapp/app.py
   http://localhost:5000          → Main web app
   http://localhost:5000/ai-tool  → AI Analysis Tool
 """
+import os
+from urllib.request import urlretrieve
+
+HF_BASE = "https://huggingface.co/BhagyashreeKondeAbertay/plant-disease-ai-models/resolve/main"
+
+MODELS = {
+    "saved_models/cnn_model.pth":      f"{HF_BASE}/cnn_model.pth",
+    "saved_models/resnet50_model.pth": f"{HF_BASE}/resnet50_model.pth",
+    "saved_models/vgg16_model.pth":    f"{HF_BASE}/vgg16_model.pth",
+    "saved_models/rf_model.joblib":    f"{HF_BASE}/rf_model.joblib",
+    "saved_models/svm_model.joblib":   f"{HF_BASE}/svm_model.joblib",
+}
+
+os.makedirs("saved_models", exist_ok=True)
+for path, url in MODELS.items():
+    if not os.path.exists(path):
+        print(f"Downloading {path}...")
+        urlretrieve(url, path)
+        print(f"Done: {path}")
 
 import os, sys, uuid, json, random
 from pathlib import Path
@@ -368,4 +387,6 @@ if __name__ == "__main__":
     print(f"   Models loaded : {predictor.get_available_models() if predictor else 'None'}")
     print(f"   Main app      : http://localhost:{FLASK_PORT}")
     print(f"   AI Tool       : http://localhost:{FLASK_PORT}/ai-tool\n")
-    app.run(host=FLASK_HOST, port=FLASK_PORT, debug=FLASK_DEBUG)
+   if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)
