@@ -28,7 +28,6 @@ for path, url in MODELS.items():
 
 import os, sys, uuid, json, random
 from pathlib import Path
-
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from flask import Flask, render_template, request, jsonify, send_from_directory, url_for
@@ -385,8 +384,5 @@ def too_large(e): return jsonify({"error":f"File too large. Max {MAX_UPLOAD_MB}M
 if __name__ == "__main__":
     print(f"\n Plant Disease Detection — AI Tool")
     print(f"   Models loaded : {predictor.get_available_models() if predictor else 'None'}")
-    print(f"   Main app      : http://localhost:{FLASK_PORT}")
-    print(f"   AI Tool       : http://localhost:{FLASK_PORT}/ai-tool\n")
-   if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
