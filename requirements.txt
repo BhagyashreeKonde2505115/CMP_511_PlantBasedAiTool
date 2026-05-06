@@ -6,8 +6,8 @@ werkzeug==3.0.1
 gunicorn==21.2.0
 
 # Deep Learning (CPU ONLY for Render)
-torch==2.2.2+cpu
-torchvision==0.17.2+cpu
+torch==2.9.1+cpu
+torchvision==0.24.1+cpu
 
 # Core ML
 numpy==1.26.4

@@ -121,7 +121,17 @@ See `results/` folder for:
 This project was developed with AI assistance (Claude by Anthropic) for code generation and debugging. All code was reviewed, understood, and adapted by the student.
 
 ---
+## Deployment (Render)
 
+This application is deployed using Render (Cloud Platform).
+
+### Start Command
+gunicorn webapp.app:app
+
+### Notes
+- Uses CPU-only PyTorch build
+- Models auto-download from Hugging Face
+- No external API required
 ## License
 
 Academic project — for educational purposes only.
