@@ -4,10 +4,10 @@
 flask==3.0.0
 werkzeug==3.0.1
 gunicorn==21.2.0
-
+gradio==4.44.0
 # Deep Learning (CPU ONLY for Render)
-torch==2.9.1+cpu
-torchvision==0.24.1+cpu
+torch==2.9.0
+torchvision==0.24.0
 
 # Core ML
 numpy==1.26.4

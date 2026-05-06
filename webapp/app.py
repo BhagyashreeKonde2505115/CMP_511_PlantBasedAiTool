@@ -382,9 +382,11 @@ def server_error(e): return jsonify({"error":"Internal server error","details":s
 def too_large(e): return jsonify({"error":f"File too large. Max {MAX_UPLOAD_MB}MB"}),413
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", FLASK_PORT))
+    port = int(os.environ.get("PORT", 7860)) 
+
     print(f"\n Plant Disease Detection — AI Tool")
     print(f"   Models loaded : {predictor.get_available_models() if predictor else 'None'}")
     print(f"   Main app      : http://0.0.0.0:{port}")
     print(f"   AI Tool       : http://0.0.0.0:{port}/ai-tool\n")
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
+    app.run(host="0.0.0.0", port=port)
