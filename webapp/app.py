@@ -387,4 +387,4 @@ if __name__ == "__main__":
     print(f"   Models loaded : {predictor.get_available_models() if predictor else 'None'}")
     print(f"   Main app      : http://0.0.0.0:{port}")
     print(f"   AI Tool       : http://0.0.0.0:{port}/ai-tool\n")
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

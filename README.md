@@ -78,23 +78,22 @@ Download from Hugging Face:
 python webapp/app.py
 ```
 Open: http://localhost:5000
+Ai tootl: http://localhost:5000/ai_tool
+---
+
+## Live Demo
+
 
 ---
 
-## 🌐 Live Demo
-
-**Live URL:** https://plant-disease-ai.onrender.com *(update after deployment)*
-
----
-
-## 📊 Dataset
+## Dataset
 
 - **PlantVillage Dataset** — 54,306 images, 38 classes
 - Source: https://www.kaggle.com/datasets/emmarex/plantdisease
 
 ---
 
-## 🛠️ Technologies
+## Technologies
 
 - Python 3.11
 - PyTorch (CNN, ResNet50, VGG16)
@@ -105,7 +104,7 @@ Open: http://localhost:5000
 
 ---
 
-## 📈 Results
+## Results
 
 All trained on PlantVillage dataset with 80/10/10 train/val/test split.
 
@@ -117,12 +116,12 @@ See `results/` folder for:
 
 ---
 
-## 🤖 AI Tool Acknowledgement
+## AI Tool Acknowledgement
 
 This project was developed with AI assistance (Claude by Anthropic) for code generation and debugging. All code was reviewed, understood, and adapted by the student.
 
 ---
 
-## 📄 License
+## License
 
 Academic project — for educational purposes only.
